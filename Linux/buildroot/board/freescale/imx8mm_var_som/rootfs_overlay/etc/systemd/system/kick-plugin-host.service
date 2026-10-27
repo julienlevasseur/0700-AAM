@@ -1,0 +1,20 @@
+[Unit]
+Description=KICK plugin host (VST3/LV2 instrument played from the KICK's MIDI ports)
+ConditionPathExists=/opt/kick-plugin-host/bin/kick-plugin-host
+RequiresMountsFor=/opt /media/kickstorage
+After=sound.target
+
+[Service]
+Type=simple
+ExecStart=/opt/kick-plugin-host/bin/kick-plugin-host --config=/etc/kick/plugin-host.conf
+Restart=on-failure
+RestartSec=2
+# The same share as the KICK application under contention, and no swap.
+CPUWeight=20
+MemorySwapMax=0
+# Lets the audio thread run with real-time priority.
+LimitRTPRIO=95
+LimitMEMLOCK=infinity
+
+[Install]
+WantedBy=multi-user.target

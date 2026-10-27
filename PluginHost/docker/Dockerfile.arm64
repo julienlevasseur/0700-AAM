@@ -1,0 +1,18 @@
+# Cross build of kick-plugin-host for the KICK (aarch64), on Debian 11: glibc
+# 2.31 and GCC 10, no newer than the KICK's toolchain (Arm GCC 10.2,
+# Buildroot 2021.02), so the binary runs on the device. qemu runs the tests.
+#   docker build -t kick-host-arm64 -f PluginHost/docker/Dockerfile.arm64 PluginHost/docker
+FROM debian:bullseye
+ENV DEBIAN_FRONTEND=noninteractive
+# Debian 11 has moved to the archive. JUCE 7.0.12 needs CMake 3.22, from backports.
+# juceaide is built for the build machine, hence the native freetype and X11 headers.
+RUN rm -f /etc/apt/sources.list.d/* \
+ && printf 'deb http://archive.debian.org/debian bullseye main\ndeb http://archive.debian.org/debian-security bullseye-security main\ndeb http://archive.debian.org/debian bullseye-backports main\n' > /etc/apt/sources.list \
+ && dpkg --add-architecture arm64 && apt-get update && apt-get install -y --no-install-recommends \
+        build-essential g++-aarch64-linux-gnu cmake/bullseye-backports cmake-data/bullseye-backports ninja-build git ca-certificates pkg-config file make \
+        qemu-user libfreetype6-dev libfontconfig1-dev libx11-dev \
+        libasound2-dev:arm64 libjack-jackd2-dev:arm64 libfreetype6-dev:arm64 libfontconfig1-dev:arm64 \
+        libx11-dev:arm64 libxext-dev:arm64 libxrandr-dev:arm64 libxinerama-dev:arm64 libxcursor-dev:arm64 \
+        libxcomposite-dev:arm64 libxrender-dev:arm64 libcairo2-dev:arm64 \
+    && rm -rf /var/lib/apt/lists/*
+COPY aarch64-linux-gnu.cmake /opt/aarch64-linux-gnu.cmake
