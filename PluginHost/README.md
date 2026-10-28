@@ -111,6 +111,18 @@ no newer than the KICK's (glibc 2.32): build them on Debian 11 or with the SDK.
 
 ## Tests
 
+The unit tests need no audio device, MIDI port or plugin: a fake plugin
+(`tests/FakePlugin.h`) stands in for the instrument. They cover the settings
+file and options, the MIDI channel filter, the mapping of the plugin's outputs
+to stereo, the output gain, the meter, and saving and restoring the plugin
+state. They are built with the host (`-DKICK_PLUGIN_HOST_TESTS=OFF` to skip
+them); after the native build above:
+
+```sh
+docker run --rm -u $(id -u):$(id -g) -e HOME=/tmp -v "$PWD":/src -w /src/PluginHost kick-build \
+    ctest --test-dir build --output-on-failure
+```
+
 `tests/live_test.sh` runs the host against JACK's dummy driver and a fake KICK
 (`tests/fake_kick.c`, an ALSA sequencer client with a `Kick:Out:1` port), with
 the host started first, as at boot:
